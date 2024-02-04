@@ -34,7 +34,7 @@ func (o *Object) Create(w http.ResponseWriter, r *http.Request) {
 	createData := ObjectCreateRequest{}
 	err = json.Unmarshal(reqBody, &createData)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 

@@ -52,7 +52,7 @@ func TestCreate_ErrorNonJsonBody(t *testing.T) {
 	require.NoError(t, err)
 
 	// Assert
-	assert.Equal(t, http.StatusInternalServerError, res.StatusCode)
+	assert.Equal(t, http.StatusBadRequest, res.StatusCode)
 }
 
 func NewTestServer(t *testing.T) *httptest.Server {
