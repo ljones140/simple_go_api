@@ -6,7 +6,7 @@ import (
 	"github.com/ljones140/simple_go_api/internal/repository/models"
 )
 
-// Warniing this repository is not thread safe as it uses a map
+// Warning this repository is not thread safe as it uses a map
 func New() *Repository {
 	return &Repository{
 		objects: make(map[uuid.UUID]models.Object),
