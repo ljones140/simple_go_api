@@ -3,12 +3,14 @@ package object_test
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/google/uuid"
 	"github.com/ljones140/simple_go_api/internal/handlers"
 	"github.com/ljones140/simple_go_api/internal/handlers/object"
 	"github.com/ljones140/simple_go_api/internal/repository/inmemory"
@@ -87,6 +89,31 @@ func TestCreate_ThenGet(t *testing.T) {
 
 	assert.Equal(t, "test", responseData.Name)
 	assert.Equal(t, createResponseData.ID, responseData.ID)
+}
+
+func TestGet_ObjectNotFound(t *testing.T) {
+	// Arrange
+	svr := NewTestServer(t)
+	req, err := http.NewRequest("GET", svr.URL+fmt.Sprintf("/objects/%s", uuid.NewString()), nil)
+	require.NoError(t, err)
+	// Act
+	res, err := http.DefaultClient.Do(req)
+	require.NoError(t, err)
+
+	// Assert
+	assert.Equal(t, http.StatusNotFound, res.StatusCode)
+}
+
+func TestGet_Object_InvalidUUID(t *testing.T) {
+	// Arrange
+	svr := NewTestServer(t)
+	req, err := http.NewRequest("GET", svr.URL+"/objects/invalid-uuid", nil)
+	require.NoError(t, err)
+	// Act
+	res, err := http.DefaultClient.Do(req)
+	require.NoError(t, err)
+	// Assert
+	assert.Equal(t, http.StatusNotFound, res.StatusCode)
 }
 
 func NewTestServer(t *testing.T) *httptest.Server {

@@ -61,12 +61,14 @@ func (o *Object) Get(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
 	uuid, err := uuid.Parse(id)
 	if err != nil {
-		panic(err)
+		w.WriteHeader(http.StatusNotFound)
+		return
 	}
 
 	obj, err := o.repo.GetObject(uuid)
 	if err != nil {
-		panic(err)
+		w.WriteHeader(http.StatusNotFound)
+		return
 	}
 	responseData := ObjectResponse{
 		ID:   obj.ID.String(),
