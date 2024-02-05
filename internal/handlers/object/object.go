@@ -2,6 +2,7 @@ package object
 
 import (
 	"encoding/json"
+	"errors"
 	"io"
 	"net/http"
 
@@ -67,7 +68,11 @@ func (o *Object) Get(w http.ResponseWriter, r *http.Request) {
 
 	obj, err := o.repo.GetObject(uuid)
 	if err != nil {
-		w.WriteHeader(http.StatusNotFound)
+		if errors.Is(err, repository.ErrNotFound) {
+			w.WriteHeader(http.StatusNotFound)
+			return
+		}
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 	responseData := ObjectResponse{
