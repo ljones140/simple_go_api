@@ -22,25 +22,16 @@ func TestCreate_Success(t *testing.T) {
 	// Arrange
 	svr := NewTestServer(t)
 
-	requestData := object.ObjectCreateRequest{Name: "test"}
-	payload, err := json.Marshal(requestData)
-	require.NoError(t, err)
-
-	req, err := http.NewRequest("POST", svr.URL+"/objects", bytes.NewReader(payload))
+	req, err := http.NewRequest(
+		"POST", svr.URL+"/objects", ModelToReader(t, object.ObjectCreateRequest{Name: "test"}),
+	)
 	require.NoError(t, err)
 
 	// Act
-	res, err := http.DefaultClient.Do(req)
-	require.NoError(t, err)
-	resBody, err := io.ReadAll(res.Body)
-	require.NoError(t, err)
+	var responseData object.ObjectResponse
+	MakeRequest(t, req, http.StatusCreated, &responseData)
 
 	// Assert
-	assert.Equal(t, http.StatusCreated, res.StatusCode)
-
-	var responseData object.ObjectResponse
-	require.NoError(t, json.Unmarshal(resBody, &responseData))
-
 	assert.Equal(t, "test", responseData.Name)
 }
 
@@ -51,44 +42,28 @@ func TestCreate_ErrorNonJsonBody(t *testing.T) {
 	require.NoError(t, err)
 
 	// Act
-	res, err := http.DefaultClient.Do(req)
-	require.NoError(t, err)
-
-	// Assert
-	assert.Equal(t, http.StatusBadRequest, res.StatusCode)
+	MakeRequest(t, req, http.StatusBadRequest, nil)
 }
 
 func TestCreate_ThenGet(t *testing.T) {
-	// Arrange
 	svr := NewTestServer(t)
 
-	payload, err := json.Marshal(object.ObjectCreateRequest{Name: "test"})
+	req, err := http.NewRequest(
+		"POST", svr.URL+"/objects", ModelToReader(t, object.ObjectCreateRequest{Name: "test"}),
+	)
 	require.NoError(t, err)
 
-	req, err := http.NewRequest("POST", svr.URL+"/objects", bytes.NewReader(payload))
+	var createResponse object.ObjectResponse
+	MakeRequest(t, req, http.StatusCreated, &createResponse)
+
+	getReq, err := http.NewRequest("GET", svr.URL+"/objects/"+createResponse.ID, nil)
 	require.NoError(t, err)
 
-	res, err := http.DefaultClient.Do(req)
-	require.NoError(t, err)
-	resBody, err := io.ReadAll(res.Body)
-	require.NoError(t, err)
-	var createResponseData object.ObjectResponse
-	require.NoError(t, json.Unmarshal(resBody, &createResponseData))
+	var getResponse object.ObjectResponse
+	MakeRequest(t, getReq, http.StatusOK, &getResponse)
 
-	getReq, err := http.NewRequest("GET", svr.URL+"/objects/"+createResponseData.ID, nil)
-	require.NoError(t, err)
-
-	getRes, err := http.DefaultClient.Do(getReq)
-	require.NoError(t, err)
-	assert.Equal(t, http.StatusOK, getRes.StatusCode)
-
-	getResBody, err := io.ReadAll(getRes.Body)
-	require.NoError(t, err)
-	var responseData object.ObjectResponse
-	require.NoError(t, json.Unmarshal(getResBody, &responseData))
-
-	assert.Equal(t, "test", responseData.Name)
-	assert.Equal(t, createResponseData.ID, responseData.ID)
+	assert.Equal(t, "test", getResponse.Name)
+	assert.Equal(t, createResponse.ID, getResponse.ID)
 }
 
 func TestGet_ObjectNotFound(t *testing.T) {
@@ -110,10 +85,7 @@ func TestGet_Object_InvalidUUID(t *testing.T) {
 	req, err := http.NewRequest("GET", svr.URL+"/objects/invalid-uuid", nil)
 	require.NoError(t, err)
 	// Act
-	res, err := http.DefaultClient.Do(req)
-	require.NoError(t, err)
-	// Assert
-	assert.Equal(t, http.StatusNotFound, res.StatusCode)
+	MakeRequest(t, req, http.StatusNotFound, nil)
 }
 
 func NewTestServer(t *testing.T) *httptest.Server {
@@ -124,4 +96,24 @@ func NewTestServer(t *testing.T) *httptest.Server {
 	svr := httptest.NewServer(r)
 	t.Cleanup(svr.Close)
 	return svr
+}
+
+func MakeRequest(t *testing.T, req *http.Request, wantStatus int, resObject any) {
+	t.Helper()
+	res, err := http.DefaultClient.Do(req)
+	require.NoError(t, err)
+	assert.Equal(t, wantStatus, res.StatusCode)
+
+	if resObject != nil {
+		resBody, err := io.ReadAll(res.Body)
+		require.NoError(t, err)
+		require.NoError(t, json.Unmarshal(resBody, resObject))
+	}
+}
+
+func ModelToReader(t *testing.T, model interface{}) io.Reader {
+	t.Helper()
+	payload, err := json.Marshal(model)
+	require.NoError(t, err)
+	return bytes.NewReader(payload)
 }
