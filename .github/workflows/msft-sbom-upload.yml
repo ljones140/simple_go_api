@@ -6,7 +6,7 @@ on:
     branches: ["main"]
 
 jobs:
-  SBOM-upload:
+  MSFT-SBOM-upload:
 
     runs-on: ubuntu-latest
     permissions:
