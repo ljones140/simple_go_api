@@ -33,8 +33,9 @@ jobs:
       run: |
         curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | sh -s -- -b /$RUNNER_TEMP
         chmod +x $RUNNER_TEMP/syft
-        $RUNNER_TEMP/syft ./${{ env.IMAGE_NAME }} -o spdx-tag-value@2.3 > spdx_2_3
+        mkdir $RUNNER_TEMP/sbom
+        $RUNNER_TEMP/syft ./${{ env.IMAGE_NAME }} -o spdx-json@2.3 > sbom/spdx.json
     - name: SBOM upload
       uses: advanced-security/spdx-dependency-submission-action@v0.0.1
       with:
-        filePath: "spdx_2_3"
+        filePath: $RUNNER_TEMP/sbom
