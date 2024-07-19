@@ -35,6 +35,7 @@ jobs:
         chmod +x $RUNNER_TEMP/syft
         mkdir $RUNNER_TEMP/sbom
         $RUNNER_TEMP/syft ./${{ env.IMAGE_NAME }} -o spdx-json@2.2 > $RUNNER_TEMP/sbom/spdx.json
+        cat $RUNNER_TEMP/sbom/spdx.json
     - name: SBOM upload
       uses: advanced-security/spdx-dependency-submission-action@v0.0.1
       with:
