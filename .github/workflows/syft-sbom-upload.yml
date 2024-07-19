@@ -22,7 +22,7 @@ jobs:
       id: meta
       uses: docker/metadata-action@v5
       with:
-        images: simple_go_api
+        images: ${{ env.IMAGE_NAME }}
     - name: Build service
       uses: docker/build-push-action@v6
       with:
@@ -33,7 +33,7 @@ jobs:
       run: |
         curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | sh -s -- -b /$RUNNER_TEMP
         chmod +x $RUNNER_TEMP/syft
-        $RUNNER_TEMP/syft simple_go_api -o spdx-tag-value@2.3 > spdx_2.3
+        $RUNNER_TEMP/syft ${{ env.IMAGE_NAME }} -o spdx-tag-value@2.3 > spdx_2.3
     - uses: actions/upload-artifact@v4
       with:
         name: sbom
