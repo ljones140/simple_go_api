@@ -33,7 +33,7 @@ jobs:
       run: |
         curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | sh -s -- -b /$RUNNER_TEMP
         chmod +x $RUNNER_TEMP/syft
-        $RUNNER_TEMP/syft ${{ env.IMAGE_NAME }} -o spdx-tag-value@2.3 > spdx_2.3
+        $RUNNER_TEMP/syft ./${{ env.IMAGE_NAME }} -o spdx-tag-value@2.3 > spdx_2.3
     - uses: actions/upload-artifact@v4
       with:
         name: sbom
