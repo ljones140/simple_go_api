@@ -38,7 +38,7 @@ jobs:
     # - name: Logging SBOM
     #   run: |
     #     echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!CATTING\n$(cat $RUNNER_TEMP/sbom/spdx.json)"
-    - uses: actions/upload-artifact@v3
+    - uses: actions/upload-artifact@v4
       with:
         name: sbom
         path: spdx.json
