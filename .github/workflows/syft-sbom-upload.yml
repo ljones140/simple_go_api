@@ -48,5 +48,6 @@ jobs:
       uses: advanced-security/spdx-dependency-submission-action@v0.1.1
       with:
         filePath: /tmp/
+        filePattern: spdx.json
 
 
