@@ -43,9 +43,9 @@ jobs:
     - uses: actions/upload-artifact@v4
       with:
         name: sbom
-        path: tmp/spdx.json
+        path: /tmp/spdx.json
     - name: SBOM upload
-      uses: advanced-security/spdx-dependency-submission-action@v0.0.1
+      uses: advanced-security/spdx-dependency-submission-action@v0.1.1
       with:
         filePath: /tmp/
 
