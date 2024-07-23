@@ -23,18 +23,20 @@ jobs:
       uses: docker/metadata-action@v5
       with:
         images: simple_go_api
-    - name: Build service
+    - name: Build image
       uses: docker/build-push-action@v6
       with:
+        tags: simple_go_api:latest
+        outputs: type=docker,dest=/tmp/simple_go_api.tar
         push: false
 
     - name: Generate SBOM
       # generation command documentation: https://github.com/microsoft/sbom-tool#sbom-generation
       run: |
+        docker load --input /tmp/simple_go_api.tar
         curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | sh -s -- -b /$RUNNER_TEMP
         chmod +x $RUNNER_TEMP/syft
-        mkdir $RUNNER_TEMP/sbom
-        $RUNNER_TEMP/syft simple_go_api -o spdx-json@2.2 | jq . > spdx.json
+        $RUNNER_TEMP/syft simple_go_api:latest -o spdx-json@2.2 | jq . > spdx.json
     # - name: Logging SBOM
     #   run: |
     #     echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!CATTING\n$(cat $RUNNER_TEMP/sbom/spdx.json)"
