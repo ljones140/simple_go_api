@@ -22,16 +22,19 @@ jobs:
       id: meta
       uses: docker/metadata-action@v5
       with:
-        images: ${{ env.IMAGE_NAME }}
-    - name: Build service
+        images: simple_go_api
+    - name: Build image
       uses: docker/build-push-action@v6
       with:
+        tags: simple_go_api:latest
+        outputs: type=docker,dest=/tmp/simple_go_api.tar
         push: false
-
+    - name: Load Image
+      run: docker load --input /tmp/simple_go_api.tar
     - name: Generate SBOM
       uses: anchore/sbom-action@v0
       with:
-        image: ./${{ env.IMAGE_NAME }}
+        image: simple_go_api:latest
         dependency-snapshot: true
         upload-artifact: false
         
