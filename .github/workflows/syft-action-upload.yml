@@ -36,7 +36,7 @@ jobs:
       with:
         image: simple_go_api:latest
         dependency-snapshot: true
-        upload-artifact: false
+        upload-artifact: true
         
       
 
