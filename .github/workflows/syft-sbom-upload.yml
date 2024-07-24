@@ -36,7 +36,7 @@ jobs:
         docker load --input /tmp/simple_go_api.tar
         curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | sh -s -- -b /$RUNNER_TEMP
         chmod +x $RUNNER_TEMP/syft
-        $RUNNER_TEMP/syft simple_go_api:latest -o spdx-json@2.2 | jq . > /tmp/spdx.json
+        $RUNNER_TEMP/syft simple_go_api:latest -o spdx-json@2.3 | jq . > /tmp/spdx.json
     - name: Upload SBOM artifact
       uses: actions/upload-artifact@v4
       with:
