@@ -15,3 +15,4 @@ Response status `201`
 ```
 { "id": "uuid", "name": "name" }
 ```
+foo
